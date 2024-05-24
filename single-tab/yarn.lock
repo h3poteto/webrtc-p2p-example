@@ -1141,6 +1141,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"single-tab@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "single-tab@workspace:."
+  dependencies:
+    typescript: "npm:^5.2.2"
+    vite: "npm:^5.2.0"
+  languageName: unknown
+  linkType: soft
+
 "smart-buffer@npm:^4.2.0":
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
@@ -1323,15 +1332,6 @@ __metadata:
   checksum: 10c0/664b8d68e4f5152ae16bd2041af1bbaf11c43630ac461835bc31ff7d019913b33e465386e09f66dc1037d7aeefbb06939e0173787c063319bc2bd30c3b9ad8e4
   languageName: node
   linkType: hard
-
-"webrtc-p2p-example@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "webrtc-p2p-example@workspace:."
-  dependencies:
-    typescript: "npm:^5.2.2"
-    vite: "npm:^5.2.0"
-  languageName: unknown
-  linkType: soft
 
 "which@npm:^2.0.1":
   version: 2.0.2
