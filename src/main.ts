@@ -1,24 +1,20 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import "./style.css";
+import { setup } from "./p2p.ts";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
+    <h1>WebRTC</h1>
+    <video id="localVideo" playsinline autoplay muted width="480"></video>
+    <video id="remoteVideo" playsinline autoplay width="480"></video>
     <div class="card">
-      <button id="counter" type="button"></button>
+      <button id="start" type="button">Start</button>
+      <button id="call" type="button">Call</button>
+      <button id="stop" type="button">Stop</button>
     </div>
     <p class="read-the-docs">
       Click on the Vite and TypeScript logos to learn more
     </p>
   </div>
-`
+`;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+setup();

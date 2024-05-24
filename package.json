@@ -1,5 +1,5 @@
 {
-  "name": "webrtc-p2p",
+  "name": "webrtc-p2p-example",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,5 +11,6 @@
   "devDependencies": {
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
-  }
+  },
+  "packageManager": "yarn@4.2.2"
 }
