@@ -1,12 +1,18 @@
+use std::sync::Arc;
+
 use actix::{Actor, ActorContext, AsyncContext, Handler, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
 
-pub struct WebSocket {}
+use crate::room;
+
+pub struct WebSocket {
+    pub room: Arc<room::Room>,
+}
 
 impl WebSocket {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(room: Arc<room::Room>) -> Self {
+        Self { room }
     }
 }
 
@@ -15,10 +21,14 @@ impl Actor for WebSocket {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         println!("WebSocket started");
+        let address = ctx.address();
+        self.room.add_user(address);
     }
 
     fn stopped(&mut self, ctx: &mut Self::Context) {
         println!("WebSocket stopped");
+        let address = ctx.address();
+        self.room.remove_user(address);
     }
 }
 
@@ -56,10 +66,25 @@ impl Handler<ReceivedMessage> for WebSocket {
         let address = ctx.address();
         match msg {
             ReceivedMessage::Open => {
-                println!("Open received");
+                self.room.get_peers(&address).iter().for_each(|peer| {
+                    peer.do_send(SendingMessage::Answer);
+                });
+                address.do_send(SendingMessage::Offer);
             }
             ReceivedMessage::Ping => {
                 address.do_send(SendingMessage::Pong);
+            }
+            ReceivedMessage::Ice { candidate } => {
+                self.room.get_peers(&address).iter().for_each(|peer| {
+                    peer.do_send(SendingMessage::Ice {
+                        candidate: candidate.clone(),
+                    });
+                });
+            }
+            ReceivedMessage::Sdp { sdp } => {
+                self.room.get_peers(&address).iter().for_each(|peer| {
+                    peer.do_send(SendingMessage::Sdp { sdp: sdp.clone() });
+                });
             }
         }
     }
@@ -73,12 +98,16 @@ impl Handler<SendingMessage> for WebSocket {
     }
 }
 
-#[derive(Deserialize, Message, Debug)]
+#[derive(Deserialize, Message, Debug, Clone)]
 #[serde(tag = "action")]
 #[rtype(result = "()")]
 enum ReceivedMessage {
     #[serde(rename_all = "camelCase")]
     Open,
+    #[serde(rename_all = "camelCase")]
+    Ice { candidate: String },
+    #[serde(rename_all = "camelCase")]
+    Sdp { sdp: String },
     #[serde(rename_all = "camelCase")]
     Ping,
 }
@@ -88,5 +117,13 @@ enum ReceivedMessage {
 #[rtype(result = "()")]
 pub enum SendingMessage {
     #[serde(rename_all = "camelCase")]
+    Offer,
+    #[serde(rename_all = "camelCase")]
+    Answer,
+    #[serde(rename_all = "camelCase")]
     Pong,
+    #[serde(rename_all = "camelCase")]
+    Ice { candidate: String },
+    #[serde(rename_all = "camelCase")]
+    Sdp { sdp: String },
 }
