@@ -1324,9 +1324,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webrtc-p2p@workspace:.":
+"webrtc-p2p-example@workspace:.":
   version: 0.0.0-use.local
-  resolution: "webrtc-p2p@workspace:."
+  resolution: "webrtc-p2p-example@workspace:."
   dependencies:
     typescript: "npm:^5.2.2"
     vite: "npm:^5.2.0"

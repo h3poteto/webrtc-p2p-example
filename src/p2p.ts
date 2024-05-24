@@ -78,7 +78,13 @@ async function call() {
   }
 }
 
-async function stopRecording() {}
+async function stopRecording() {
+  console.log("Stopping");
+  sendPeer.close();
+  receivePeer.close();
+  stopButton.disabled = true;
+  callButton.disabled = false;
+}
 
 function getPartner(peer: RTCPeerConnection) {
   return peer === sendPeer ? receivePeer : sendPeer;
@@ -89,7 +95,7 @@ async function onIceCandidate(
   event: RTCPeerConnectionIceEvent,
 ) {
   try {
-    await getPartner(peer).addIceCandidate(event.candidate);
+    await getPartner(peer).addIceCandidate(event.candidate!);
     onAddIceCandidateSuccess(peer);
   } catch (e) {
     onAddIceCandidateError(peer, e);
