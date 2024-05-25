@@ -28,6 +28,9 @@ impl Actor for WebSocket {
     fn stopped(&mut self, ctx: &mut Self::Context) {
         tracing::info!("WebSocket stopped");
         let address = ctx.address();
+        self.room.get_peers(&address).iter().for_each(|peer| {
+            peer.do_send(SendingMessage::Close);
+        });
         self.room.remove_user(address);
     }
 }
@@ -126,4 +129,6 @@ pub enum SendingMessage {
     Ice { candidate: String },
     #[serde(rename_all = "camelCase")]
     Sdp { sdp: String },
+    #[serde(rename_all = "camelCase")]
+    Close,
 }
