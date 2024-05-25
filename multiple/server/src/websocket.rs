@@ -20,13 +20,13 @@ impl Actor for WebSocket {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        println!("WebSocket started");
+        tracing::info!("WebSocket started");
         let address = ctx.address();
         self.room.add_user(address);
     }
 
     fn stopped(&mut self, ctx: &mut Self::Context) {
-        println!("WebSocket stopped");
+        tracing::info!("WebSocket stopped");
         let address = ctx.address();
         self.room.remove_user(address);
     }
@@ -39,12 +39,12 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocket {
                 ctx.pong(&msg);
             }
             Ok(ws::Message::Pong(_)) => {
-                println!("Pong received");
+                tracing::info!("Pong received");
             }
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<ReceivedMessage>(&text) {
                 Ok(message) => ctx.address().do_send(message),
                 Err(e) => {
-                    println!("Error: {}", e);
+                    tracing::error!("Error: {}", e);
                 }
             },
             Ok(ws::Message::Binary(bin)) => {
