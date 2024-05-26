@@ -1,8 +1,9 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use actix::{Actor, ActorContext, AsyncContext, Handler, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::room;
 
@@ -67,6 +68,7 @@ impl Handler<ReceivedMessage> for WebSocket {
 
     fn handle(&mut self, msg: ReceivedMessage, ctx: &mut Self::Context) {
         let address = ctx.address();
+        tracing::info!("Received message: {:?}", msg);
         match msg {
             ReceivedMessage::Open => {
                 self.room.get_peers(&address).iter().for_each(|peer| {
@@ -89,6 +91,13 @@ impl Handler<ReceivedMessage> for WebSocket {
                     peer.do_send(SendingMessage::Sdp { sdp: sdp.clone() });
                 });
             }
+            ReceivedMessage::Close => {
+                self.room.get_peers(&address).iter().for_each(|peer| {
+                    peer.do_send(SendingMessage::Close);
+                });
+                ctx.close(None);
+                ctx.stop();
+            }
         }
     }
 }
@@ -108,11 +117,13 @@ enum ReceivedMessage {
     #[serde(rename_all = "camelCase")]
     Open,
     #[serde(rename_all = "camelCase")]
-    Ice { candidate: String },
+    Ice { candidate: HashMap<String, Value> },
     #[serde(rename_all = "camelCase")]
-    Sdp { sdp: String },
+    Sdp { sdp: HashMap<String, Value> },
     #[serde(rename_all = "camelCase")]
     Ping,
+    #[serde(rename_all = "camelCase")]
+    Close,
 }
 
 #[derive(Serialize, Message, Debug)]
@@ -126,9 +137,9 @@ pub enum SendingMessage {
     #[serde(rename_all = "camelCase")]
     Pong,
     #[serde(rename_all = "camelCase")]
-    Ice { candidate: String },
+    Ice { candidate: HashMap<String, Value> },
     #[serde(rename_all = "camelCase")]
-    Sdp { sdp: String },
+    Sdp { sdp: HashMap<String, Value> },
     #[serde(rename_all = "camelCase")]
     Close,
 }
